@@ -9,21 +9,24 @@
 typedef struct{
     unsigned int current_time;
     unsigned int number_of_process;
-    int* log;
+    int* cpu_log;
+    int* IO_log;
     PCB* process_list;
     Processor* CPU;
     Processor* IO_device;
 }Simulation;
-void simulate(PCB process_array[], int number_of_process,int log[], algorithm policy);
-Simulation* initialize_simulation(PCB process_list[],int number_of_process,int log[],algorithm policy);
+extern bool silent;
+void simulate(PCB process_array[], int number_of_process,int* log[], algorithm policy);
+Simulation* initialize_simulation(PCB process_list[],int number_of_process,int* log[],algorithm policy);
 int destruct_simulation(Simulation** simul);
 void update_simulation(Simulation* simul);
 void write_log(Simulation* simul);
 void check_IO_request(Simulation* simul);
+void execute_process(Simulation* simul);
 void print_average_waitingtime(Simulation* simul);
 void print_average_turnaround(Simulation* simul);
 void update_waiting_time(Simulation* simul);
 void admit_process(Simulation* simul);
 void update_running_process(Simulation* simul);
-void update_running_process_FCFS(Simulation* simul);
+void update_running_process_FCFS(Processor* processor);
 #endif

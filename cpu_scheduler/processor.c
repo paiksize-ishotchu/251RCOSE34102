@@ -56,6 +56,11 @@ int stop_process(Processor* processor){
     }
     return 0;
 }
+bool is_process_finished(Processor* processor){
+    if(processor->type==CPU) return processor->executing_process->remaining_CPU_burst_time==0;
+    else if(processor->type==IO) return processor->executing_process->remaining_IO_burst_time==0;
+    else return false;
+}
 PCB* dispatch_process(Processor* processor){
     switch (processor->scheduling_policy)
     {

@@ -51,17 +51,17 @@ int load_process_list(PCB process_list[],const char* filename){
     }
 }
 void print_pcb(PCB pcb){
-    printf("pid: %03d, burst: %03d, arrival: %03d, priority: %d, remain_cpu: %d, remain_io%d\n",pcb.pid,
+    printf("pid: %03d, burst: %03d, arrival: %03d, priority: %d, remain_cpu: %d, remain_io: %d\n",pcb.pid,
         pcb.cpu_burst_time,pcb.arrival_time,pcb.priority,pcb.remaining_CPU_burst_time,pcb.remaining_IO_burst_time);    
 }
-bool is_process_finished(PCB pcb){
-    return pcb.remaining_CPU_burst_time==0;
-}
 bool is_all_process_finished(PCB process_list[],int number_of_process){
-    for(int i=0;i<number_of_process;++i) if(!is_process_finished(process_list[i])) return false;
+    for(int i=0;i<number_of_process;++i) if((process_list[i]).remaining_CPU_burst_time!=0) return false;
     return true;
 }
 int reset_all_process(PCB process_list[],int number_of_process){
-    for(int i=0;i<number_of_process;++i) process_list[i].remaining_CPU_burst_time=process_list[i].cpu_burst_time;
+    for(int i=0;i<number_of_process;++i) {
+        process_list[i].remaining_CPU_burst_time=process_list[i].cpu_burst_time;
+        process_list[i].waiting_time=0;
+    }
     return 0;
 }

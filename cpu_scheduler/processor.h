@@ -2,7 +2,7 @@
 #include "process.h"
 #ifndef _PROCESSOR_HEATHER
 #define _PROCESSOR_HEATHER
-#define IO_REQUEST_PROBABILITY 5
+#define IO_REQUEST_PROBABILITY 10
 #define MAX_IO_REQUEST_TIME 10
 typedef enum{
     FCFS,
@@ -25,6 +25,7 @@ int set_scheduling_algorithm(Processor* processor, algorithm policy);
 int stop_process(Processor* processor);
 bool is_idle(Processor* processor);
 int set_io_request_random(Processor* processor);
+bool is_process_finished(Processor* process);
 PCB* dispatch_process(Processor* processor);
 PCB* dispatch_FCFS(Queue* ready_queue);
 #endif

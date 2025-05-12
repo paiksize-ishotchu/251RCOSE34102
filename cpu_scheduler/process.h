@@ -19,7 +19,6 @@ typedef struct {
     bool IO_request;
 }PCB;
 bool is_file_exist(const char* filename);
-bool is_process_finished(PCB pcb);
 bool is_all_process_finished(PCB process_list[],int number_of_process);
 int reset_all_process(PCB process_list[],int number_of_process);
 int make_process_list(int number_of_process, const char* filename);

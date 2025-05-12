@@ -1,5 +1,5 @@
 #include "simulator.h"
-Simulation* initialize_simulation(PCB process_list[],int number_of_process,int log[],algorithm policy){
+Simulation* initialize_simulation(PCB process_list[],int number_of_process,int* log[],algorithm policy){
     Simulation* simul=(Simulation*)malloc(sizeof(Simulation));
     if(simul==NULL) return NULL;
     simul->current_time=0;
@@ -15,26 +15,32 @@ Simulation* initialize_simulation(PCB process_list[],int number_of_process,int l
     simul->CPU->waiting_queue=waiting_queue;
     simul->IO_device->ready_queue=simul->CPU->waiting_queue;
     simul->IO_device->waiting_queue=simul->CPU->ready_queue;
-    simul->log=log;
+    simul->cpu_log=log[0];
+    simul->IO_log=log[1];
     set_scheduling_algorithm(simul->CPU,policy);
     reset_all_process(simul->process_list,number_of_process);
     return simul;
 }
-void simulate(PCB process_array[], int number_of_process, int log[], algorithm policy){
+void simulate(PCB process_array[], int number_of_process, int* log[], algorithm policy){
     if(number_of_process==0) return;
     Simulation* simul=initialize_simulation(process_array,number_of_process,log,policy);
     while(!is_all_process_finished(process_array,number_of_process)){
-        //
-        printf("\n[%04d]: CPU(%d) IO(%d)\n",simul->current_time,is_idle(simul->CPU)?0:simul->CPU->executing_process->pid,
-    is_idle(simul->IO_device)?0:simul->IO_device->executing_process->pid);
+        update_simulation(simul);
+        if(!silent){
+        printf("\n[%04d]: CPU - ",simul->current_time-1);
+        if(is_idle(simul->CPU)) printf("IDLE\n");
+        else print_pcb(*simul->CPU->executing_process);
+        printf("\tIO  - ");
+        if(is_idle(simul->IO_device)) printf("IDLE\n");
+        else print_pcb(*simul->IO_device->executing_process);
         printf("----------READY QUEUE-----------\n");
         travel_queue(simul->CPU->ready_queue);
-        printf("----------WAIT QUEUE----------\n");
+        printf("----------WAIT QUEUE------------\n");
         travel_queue(simul->CPU->waiting_queue);
-        //        
-        update_simulation(simul);
+        }
     }
-    simul->log[simul->current_time-1]=-1;
+    simul->cpu_log[simul->current_time-1]=-1;
+    simul->IO_log[simul->current_time-1]=-1;
     print_average_waitingtime(simul);
     print_average_turnaround(simul);
     destruct_simulation(&simul);
@@ -51,9 +57,11 @@ int destruct_simulation(Simulation** simul){
 }
 void update_simulation(Simulation* simul){
     admit_process(simul);
-    check_IO_request(simul);
+    execute_process(simul);
     update_running_process(simul);
     update_waiting_time(simul);
+    check_IO_request(simul);
+    update_running_process(simul);
     write_log(simul);
     simul->current_time++;
 }
@@ -69,8 +77,8 @@ void print_average_turnaround(Simulation* simul){
     for(int i=0;i<simul->number_of_process;++i){
         int finish_time=0;
         int j=0;
-        while((simul->log)[j]!=-1){
-            if((simul->log)[j]==i+1) finish_time=j;
+        while((simul->cpu_log)[j]!=-1){
+            if((simul->cpu_log)[j]==i+1) finish_time=j;
             j++;
         }
         val+=finish_time-((simul->process_list)[i].arrival_time)+1;
@@ -86,13 +94,19 @@ void check_IO_request(Simulation* simul){
     }
 }
 void write_log(Simulation* simul){
-    if(is_idle(simul->CPU)) simul->log[simul->current_time]=0;
-    else simul->log[simul->current_time]=simul->CPU->executing_process->pid;
+    if(is_idle(simul->CPU)) simul->cpu_log[simul->current_time]=0;
+    else simul->cpu_log[simul->current_time]=simul->CPU->executing_process->pid;
+    if(is_idle(simul->IO_device)) simul->IO_log[simul->current_time]=0;
+    else simul->IO_log[simul->current_time]=simul->IO_device->executing_process->pid;
 }
 void admit_process(Simulation* simul){
     for(int i=0;i<simul->number_of_process;++i){
         if((simul->process_list[i]).arrival_time==simul->current_time) enqueue_queue(simul->CPU->ready_queue,&(simul->process_list)[i]);
     }
+}
+void execute_process(Simulation* simul){
+    if(!is_idle(simul->CPU)) simul->CPU->executing_process->remaining_CPU_burst_time--;
+    if(!is_idle(simul->IO_device)) simul->IO_device->executing_process->remaining_IO_burst_time--;
 }
 void update_waiting_time(Simulation* simul){
     Queue* ready_queue=simul->CPU->ready_queue;
@@ -101,23 +115,25 @@ void update_waiting_time(Simulation* simul){
     }
 }
 void update_running_process(Simulation* simul){
-    if(!is_idle(simul->CPU)) simul->CPU->executing_process->remaining_CPU_burst_time--;
     switch(simul->CPU->scheduling_policy){
         case FCFS:
-            update_running_process_FCFS(simul);
-            break;
+        update_running_process_FCFS(simul->CPU);
+        break;
         default:
-            break;
+        break;
     }
+    update_running_process_FCFS(simul->IO_device);
 }
-void update_running_process_FCFS(Simulation* simul){
+void update_running_process_FCFS(Processor* processor){
     PCB* next_process=NULL;
-    if(is_idle(simul->CPU))
-        next_process=dispatch_FCFS(simul->CPU->ready_queue);
-    else if(is_process_finished(*simul->CPU->executing_process)){
-        stop_process(simul->CPU);
-        next_process=dispatch_FCFS(simul->CPU->ready_queue);
+    if(is_idle(processor))
+        next_process=dispatch_FCFS(processor->ready_queue);
+    else if(is_process_finished(processor)){
+        stop_process(processor);
+        next_process=dispatch_FCFS(processor->ready_queue);
     }
-    else next_process=simul->CPU->executing_process;
-    simul->CPU->executing_process=next_process;
+    else next_process=processor->executing_process;
+    processor->executing_process=next_process;
 }
+// 문제점 1: IO request가 발생할때 cpu burst가 안 줄어들고 stop
+// 문제점 2: IO request가 끝나고 ready queue로 돌아올때 cpu가 idle임에도 한번 기다림

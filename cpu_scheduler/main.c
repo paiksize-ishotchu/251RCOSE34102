@@ -5,18 +5,22 @@
 #include "queue.h"
 #include "simulator.h"
 #define FILENAME_DEFAULT "process_list.csv"
+bool silent=false;
 int load(PCB process_array[]);
 void show(PCB process_array[],int number_of_process);
 int make(int number_of_process);
 void help();
-void test(PCB process_array[],int number_of_process, int cpu_log[]);
-void chart(int cpu_log[]);
+void test(PCB process_array[],int number_of_process, int* log[]);
+void chart(int* log[]);
+void toggle_silent();
 int main(int argc, char* argv[]){
     srand(time(NULL));
     printf("\n\t\t\tWelcome to my CPU scheduling simulator!\n");help();
     PCB process_array[MAX_PROCESS_NUMBER];
     int number_of_process=0;
     int cpu_log[2000]={-1,};
+    int IO_log[2000]={-1,};
+    int* log[2]={cpu_log,IO_log};
     while(true){
         char command[10];
         printf(">>");
@@ -26,15 +30,28 @@ int main(int argc, char* argv[]){
         else if(strcmp(command,"make")==0) make(number_of_process);
         else if(strcmp(command,"load")==0) number_of_process=load(process_array);
         else if(strcmp(command,"show")==0) show(process_array,number_of_process);
-        else if(strcmp(command,"test")==0) test(process_array,number_of_process,cpu_log);
-        else if(strcmp(command,"chart")==0) chart(cpu_log);
+        else if(strcmp(command,"test")==0) test(process_array,number_of_process,log);
+        else if(strcmp(command,"chart")==0) chart(log);
+        else if(strcmp(command,"silent")==0) toggle_silent();
         else printf("wrong command...(type 'help' to see command list!)\n");
     }
     return 0;
 }
 void help(){
-    printf("\n\t help: show this\n\t make: generate process data file\n\t load: load process data file\n\t exit: terminate program\n");
-    printf("\t show: list process initial state\n\t test: simulate current process\n\tchart: show gannt chart of last test\n");
+    printf("\n%14s: show this\n%14s: generate process data file\n%14s: load process data file\n%14s: terminate program\n","help","make","load","exit");
+    printf("%14s: show current processes\n%14s: simulate current process\n%14s: show gannt chart of last test\n","show","test","chart");
+    printf("%14s: toggle verbose (default=on)\n","silent");
+}
+void toggle_silent(){
+    if(silent){
+        printf("loud from now on\n");
+        silent=!silent;
+    }
+    else{
+        printf("silent from now on\n");
+        silent=!silent;
+    }
+    
 }
 int make(int number_of_process){
     char filename[100];
@@ -58,19 +75,23 @@ void show(PCB process_array[],int number_of_process){
     if(number_of_process==0) printf("please load process file first\n");
     for(int i=0;i<number_of_process;++i) print_pcb(process_array[i]);
 }
-void test(PCB process_array[],int number_of_process, int cpu_log[]){
+void test(PCB process_array[],int number_of_process, int* log[]){
     char buf[20];
     printf("choose scheduling algorithm : ");
     scanf("%s",buf);
-    if(strcmp(buf,"FCFS")==0||strcmp(buf,"fcfs")==0) simulate(process_array,number_of_process,cpu_log,FCFS);
+    if(strcmp(buf,"FCFS")==0||strcmp(buf,"fcfs")==0) simulate(process_array,number_of_process,log,FCFS);
     else printf("I don't know that algorithm...\n");
 }
-void chart(int cpu_log[]){
+void chart(int* log[]){
     int i=0;
-    while(cpu_log[i]!=-1){
-        if(cpu_log[i]==0) printf("[%04d] : IDLE\n",i);
-        else printf("[%04d] : %03d\n",i,cpu_log[i]);
+    printf("%8s%8s%8s\n","time","CPU","IO");
+    while(log[0][i]!=-1){
+        printf("[%04d] :",i);
+        if(log[0][i]==0) printf("%8s","IDLE");
+        else printf("%8d",log[0][i]);
+        if(log[1][i]==0) printf("%8s\n","IDLE");
+        else printf("%8d\n",log[1][i]);
         i++;
     }
-    printf("[%04d] : END\n",i);
+    printf("[%04d] :%10s\n",i,"END");
 }
