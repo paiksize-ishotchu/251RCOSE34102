@@ -14,6 +14,9 @@ typedef struct{
     PCB* process_list;
     Processor* CPU;
     Processor* IO_device;
+    //CPU and IO_device share the same queues, 
+    //CPU's ready queue is used as the IO_device's waiting queue
+    //CPU's waiting queue is used as the IO_device's ready queue
 }Simulation;
 extern bool silent;
 void simulate(PCB process_array[], int number_of_process,int* log[], algorithm policy);
@@ -29,4 +32,5 @@ void update_waiting_time(Simulation* simul);
 void admit_process(Simulation* simul);
 void update_running_process(Simulation* simul);
 void update_running_process_FCFS(Processor* processor);
+void update_running_process_SJF(Processor* processor);
 #endif

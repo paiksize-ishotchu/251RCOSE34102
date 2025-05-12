@@ -11,10 +11,12 @@ typedef struct{
     unsigned int out;
     PCB** head;
 }Queue;
+//create a queue, size=QUEUE_SIZE
 Queue* create_queue(void);
 int destruct_queue(Queue** queue);
 int enqueue_queue(Queue* queue, PCB* pcb);
-PCB* dequeue_queue(Queue* queue);
+//dequeue i th element from queue
+PCB* dequeue_queue(Queue* queue, int i);
 bool is_empty_queue(Queue* queue);
 void travel_queue(Queue* queue);
 #endif

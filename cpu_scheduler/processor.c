@@ -67,6 +67,8 @@ PCB* dispatch_process(Processor* processor){
     case FCFS:
         return dispatch_FCFS(processor->ready_queue);
         break;
+    case SJF:
+        return dispatch_SJF(processor->ready_queue);
     
     default:
         break;
@@ -74,5 +76,17 @@ PCB* dispatch_process(Processor* processor){
     return NULL;
 }
 PCB* dispatch_FCFS(Queue* ready_queue){
-    return dequeue_queue(ready_queue);
+    return dequeue_queue(ready_queue,0);
+}
+PCB* dispatch_SJF(Queue* ready_queue){
+    if(ready_queue->number_of_element==0) return NULL;
+    int best=0;
+    int shortest_remain_cpu_burst=(ready_queue->head)[ready_queue->out]->remaining_CPU_burst_time;
+    for(int i=0;i<ready_queue->number_of_element;++i){
+        if((ready_queue->head)[(ready_queue->out+i)%QUEUE_SIZE]->remaining_CPU_burst_time<shortest_remain_cpu_burst){
+            best=i;
+            shortest_remain_cpu_burst=(ready_queue->head)[(ready_queue->out+i)%QUEUE_SIZE]->remaining_CPU_burst_time;
+        }
+    }
+    return dequeue_queue(ready_queue,best);
 }

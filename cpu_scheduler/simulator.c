@@ -115,13 +115,18 @@ void update_waiting_time(Simulation* simul){
     }
 }
 void update_running_process(Simulation* simul){
+    
     switch(simul->CPU->scheduling_policy){
         case FCFS:
         update_running_process_FCFS(simul->CPU);
         break;
+        case SJF:
+        update_running_process_SJF(simul->CPU);
+        break;
         default:
         break;
     }
+
     update_running_process_FCFS(simul->IO_device);
 }
 void update_running_process_FCFS(Processor* processor){
@@ -135,5 +140,14 @@ void update_running_process_FCFS(Processor* processor){
     else next_process=processor->executing_process;
     processor->executing_process=next_process;
 }
-// 문제점 1: IO request가 발생할때 cpu burst가 안 줄어들고 stop
-// 문제점 2: IO request가 끝나고 ready queue로 돌아올때 cpu가 idle임에도 한번 기다림
+void update_running_process_SJF(Processor* processor){
+    PCB* next_process=NULL;
+    if(is_idle(processor))
+        next_process=dispatch_SJF(processor->ready_queue);
+    else if(is_process_finished(processor)){
+        stop_process(processor);
+        next_process=dispatch_SJF(processor->ready_queue);
+    }
+    else next_process=processor->executing_process;
+    processor->executing_process=next_process;
+}

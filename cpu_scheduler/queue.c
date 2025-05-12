@@ -29,15 +29,17 @@ int enqueue_queue(Queue* queue, PCB* pcb){
     }
     return 0;
 }
-PCB* dequeue_queue(Queue* queue){
+PCB* dequeue_queue(Queue* queue, int i){
     if(is_empty_queue(queue)) return NULL;
-    else{
-        PCB* pcb_ptr=NULL;
-        pcb_ptr=queue->head[queue->out];
-        queue->out=(queue->out+1)%QUEUE_SIZE;
-        queue->number_of_element--;
-        return pcb_ptr;
-    }
+    if(queue->number_of_element<=i) return NULL;
+    PCB* temp=(queue->head)[queue->out];
+    (queue->head)[queue->out]=(queue->head)[(queue->out+i)%QUEUE_SIZE];
+    (queue->head)[(queue->out+i)%QUEUE_SIZE]=temp;
+    PCB* pcb_ptr=NULL;
+    pcb_ptr=queue->head[queue->out];
+    queue->out=(queue->out+1)%QUEUE_SIZE;
+    queue->number_of_element--;
+    return pcb_ptr;
 }
 bool is_empty_queue(Queue* queue){
     if(queue->number_of_element==0) return true;

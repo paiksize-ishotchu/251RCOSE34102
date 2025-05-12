@@ -80,6 +80,8 @@ void test(PCB process_array[],int number_of_process, int* log[]){
     printf("choose scheduling algorithm : ");
     scanf("%s",buf);
     if(strcmp(buf,"FCFS")==0||strcmp(buf,"fcfs")==0) simulate(process_array,number_of_process,log,FCFS);
+    else if(strcmp(buf,"SJF")==0||strcmp(buf,"sjf")==0) simulate(process_array,number_of_process,log,SJF);
+    else if(strcmp(buf,"RR")==0||strcmp(buf,"rr")==0) simulate(process_array,number_of_process,log,RR);
     else printf("I don't know that algorithm...\n");
 }
 void chart(int* log[]){
