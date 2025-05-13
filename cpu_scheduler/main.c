@@ -79,9 +79,32 @@ void test(PCB process_array[],int number_of_process, int* log[]){
     char buf[20];
     printf("choose scheduling algorithm : ");
     scanf("%s",buf);
-    if(strcmp(buf,"FCFS")==0||strcmp(buf,"fcfs")==0) simulate(process_array,number_of_process,log,FCFS);
-    else if(strcmp(buf,"SJF")==0||strcmp(buf,"sjf")==0) simulate(process_array,number_of_process,log,SJF);
-    else if(strcmp(buf,"RR")==0||strcmp(buf,"rr")==0) simulate(process_array,number_of_process,log,RR);
+    if(strcmp(buf,"FCFS")==0||strcmp(buf,"fcfs")==0) simulate(process_array,number_of_process,log,FCFS,0);
+    else if(strcmp(buf,"SJF")==0||strcmp(buf,"sjf")==0){
+        printf("Preemtive? [y/n]: ");
+        scanf("%s",buf);
+        if(strcmp(buf,"y")==0)
+            simulate(process_array,number_of_process,log,SJF_PREEMPTIVE,0);
+        else if(strcmp(buf,"n")==0)
+            simulate(process_array,number_of_process,log,SJF,0);
+        else printf("try again\n");
+    }
+    else if(strcmp(buf,"PRIORITY")==0||strcmp(buf,"priority")==0){
+        printf("Preemptive? [y/n]: ");
+        scanf("%s",buf);
+        if(strcmp(buf,"y")==0)
+            simulate(process_array,number_of_process,log,PRIORITY_PREEMPTIVE,0);
+        else if(strcmp(buf,"n")==0)
+            simulate(process_array,number_of_process,log,PRIORITY,0);
+        else printf("try again\n");
+    }
+    else if(strcmp(buf,"RR")==0||strcmp(buf,"rr")==0){
+        int time_quantum=2;
+        printf("time quantum? :");
+        scanf("%d",&time_quantum);
+        if(time_quantum>0) simulate(process_array,number_of_process,log,RR,time_quantum);
+        else printf("try again\n");
+    }
     else printf("I don't know that algorithm...\n");
 }
 void chart(int* log[]){

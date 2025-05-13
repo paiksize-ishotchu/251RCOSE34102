@@ -46,7 +46,7 @@ bool is_empty_queue(Queue* queue){
     else return false;
 }
 void travel_queue(Queue* queue){
-    if(is_empty_queue(queue)) printf("this queue is empty\n");
+    if(is_empty_queue(queue)) printf("%14sthis queue is empty\n","");
     for(int i=0;i<queue->number_of_element;++i){
         print_pcb(*queue->head[queue->out+i]);
     }
