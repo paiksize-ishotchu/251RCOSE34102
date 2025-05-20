@@ -5,6 +5,7 @@
 #include "queue.h"
 #include "simulator.h"
 #define FILENAME_DEFAULT "process_list.csv"
+#define MAX_CHART_LENGTH 10000
 bool silent=false;
 int load(PCB process_array[]);
 void show(PCB process_array[],int number_of_process);
@@ -18,8 +19,8 @@ int main(int argc, char* argv[]){
     printf("\n\t\t\tWelcome to my CPU scheduling simulator!\n");help();
     PCB process_array[MAX_PROCESS_NUMBER];
     int number_of_process=0;
-    int cpu_log[2000]={-1,};
-    int IO_log[2000]={-1,};
+    int cpu_log[MAX_CHART_LENGTH]={-1,};
+    int IO_log[MAX_CHART_LENGTH]={-1,};
     int* log[2]={cpu_log,IO_log};
     while(true){
         char command[10];
@@ -117,6 +118,7 @@ void chart(int* log[]){
         if(log[1][i]==0) printf("%8s\n","IDLE");
         else printf("%8d\n",log[1][i]);
         i++;
+        if(i>=MAX_CHART_LENGTH) break;
     }
     printf("[%04d] :%10s\n",i,"END");
 }

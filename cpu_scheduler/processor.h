@@ -24,7 +24,8 @@ typedef struct{
     Queue* waiting_queue;
     algorithm scheduling_policy;
     processor_type type;
-    int time_quantum;
+    unsigned int time_quantum;
+    unsigned int timer;
 }Processor;
 Processor* initialize_processor(processor_type type);
 int destruct_processor(Processor** processor);
@@ -34,6 +35,8 @@ int set_io_request_random(Processor* processor);
 bool is_idle(Processor* processor);
 bool is_process_finished(Processor* processor);
 bool is_preemptive(Processor* processor);
+bool is_time_expired(Processor* Processor);
+void reset_timer(Processor* Processor);
 //dispatch a process from ready queue according to processor's scheduling policy
 void dispatch_process(Processor* processor);
 PCB* dispatch_FCFS(Processor* processor);

@@ -3,22 +3,48 @@ Simulation* initialize_simulation(PCB process_list[],int number_of_process,int* 
     Simulation* simul=(Simulation*)malloc(sizeof(Simulation));
     if(simul==NULL) return NULL;
     simul->current_time=0;
+    simul->process_list=process_list;
     simul->number_of_process=number_of_process;
+    simul->cpu_log=log[0];
+    simul->IO_log=log[1];
+    reset_all_process(simul->process_list,number_of_process);
     simul->CPU=initialize_processor(CPU);
     simul->IO_device=initialize_processor(IO);
-    simul->process_list=process_list;
-    if(simul->CPU==NULL||simul->IO_device==NULL) return NULL;
+    if(simul->CPU==NULL&&simul->IO_device==NULL){
+        //initializing CPU and IO fails
+        return NULL;
+    }
+    else if(simul->CPU==NULL&&simul->IO_device!=NULL){
+        //initializing CPU fails but IO success
+        destruct_processor(&simul->IO_device);
+        return NULL;
+    }
+    else if(simul->CPU!=NULL&&simul->IO_device==NULL){
+        //initializing CPU success but IO fails
+        destruct_processor(&simul->CPU);
+        return NULL;    
+    }
     Queue* ready_queue=create_queue();
     Queue* waiting_queue=create_queue();
-    if(ready_queue==NULL||waiting_queue==NULL) return NULL;
+    if(ready_queue==NULL&&waiting_queue==NULL){
+        //creating ready queue and waiting queue fails
+        return NULL;
+    }
+    else if(ready_queue!=NULL&&waiting_queue==NULL){
+        //creating ready queue success but waiting queue fails
+        destruct_queue(&ready_queue);
+        return NULL;
+    }
+    else if(ready_queue==NULL&&waiting_queue!=NULL){
+        //creating ready queue fails but waiting queue success
+        destruct_queue(&waiting_queue);
+        return NULL;
+    }
+    set_scheduling_algorithm(simul->CPU,policy);
     simul->CPU->ready_queue=ready_queue;
     simul->CPU->waiting_queue=waiting_queue;
     simul->IO_device->ready_queue=simul->CPU->waiting_queue;
     simul->IO_device->waiting_queue=simul->CPU->ready_queue;
-    simul->cpu_log=log[0];
-    simul->IO_log=log[1];
-    set_scheduling_algorithm(simul->CPU,policy);
-    reset_all_process(simul->process_list,number_of_process);
     return simul;
 }
 void simulate(PCB process_array[], int number_of_process, int* log[], algorithm policy,int time_quantum){
@@ -51,7 +77,6 @@ void update_simulation(Simulation* simul){
     if(!silent) print_simulation_state(simul);
     execute_process(simul);
     update_waiting_time(simul);
-//여기에 IO interrupt 부여
     random_IO_request(simul);
     simul->current_time++;
 }
@@ -114,7 +139,10 @@ void admit_process(Simulation* simul){
     }
 }
 void execute_process(Simulation* simul){
-    if(!is_idle(simul->CPU)) simul->CPU->executing_process->remaining_CPU_burst_time--;
+    if(!is_idle(simul->CPU)) {
+        simul->CPU->executing_process->remaining_CPU_burst_time--;
+        simul->CPU->timer++;
+    }
     if(!is_idle(simul->IO_device)) simul->IO_device->executing_process->remaining_IO_burst_time--;
 }
 void update_waiting_time(Simulation* simul){
@@ -126,6 +154,9 @@ void update_waiting_time(Simulation* simul){
 void update_process(Simulation* simul){
     dispatch_process(simul->CPU);
     dispatch_process(simul->IO_device);
-    //for case: cpu stop->cpu dispatch fail(redy queue empty)->io stop(ready queue insertion)
+    //for case: process terminates->CPU sits idle->CPU dispatch fails since ready queue is empty->
+    //->IO stop->now ready queue is not empty 
+    //consequently CPU and IO both IDLE while there is a process in the ready queue
+    //thus dispatch for CPU one more time. 
     dispatch_process(simul->CPU);
 }

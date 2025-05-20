@@ -57,10 +57,10 @@ int load_process_list(PCB process_list[],const char* filename){
 void print_pcb(PCB pcb){
     printf("%14s","");
     //for debugging
-    //printf("wait: %03d, io_request: %5s, ",pcb.waiting_time,pcb.IO_request?"true":"false");
+    //printf("io_request: %5s, ",pcb.IO_request?"true":"false");
     //
-    printf("pid: %03d, burst: %03d, arrival: %03d, priority: %d, remain_cpu: %d, remain_io: %d\n",pcb.pid,
-        pcb.cpu_burst_time,pcb.arrival_time,pcb.priority,pcb.remaining_CPU_burst_time,pcb.remaining_IO_burst_time);    
+    printf("pid: %03d, burst: %03d, arrival: %03d, priority: %d, remain_cpu: %d, remain_io: %d, waiting_time: %d\n",pcb.pid,
+        pcb.cpu_burst_time,pcb.arrival_time,pcb.priority,pcb.remaining_CPU_burst_time,pcb.remaining_IO_burst_time,pcb.waiting_time);    
 }
 bool is_all_process_finished(PCB process_list[],int number_of_process){
     for(int i=0;i<number_of_process;++i) if((process_list[i]).remaining_CPU_burst_time!=0) return false;

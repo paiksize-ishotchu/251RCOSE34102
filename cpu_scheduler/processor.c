@@ -8,6 +8,7 @@ Processor* initialize_processor(processor_type type){
     processor->scheduling_policy=FCFS;
     processor->type=type;
     processor->time_quantum=0;
+    processor->timer=0;
     return processor;
 }
 int destruct_processor(Processor** processor){
@@ -44,10 +45,10 @@ int set_io_request_random(Processor* processor){
 }
 int stop_process(Processor* processor){
     if(is_idle(processor)) return -1;
-    if(processor->type==CPU){
+    else if(processor->type==CPU){
         if(is_process_finished(processor)) 
             //terminate
-            return 1;
+            ;
         else if(processor->executing_process->IO_request){
             //send running process to waiting queue if IO request
             enqueue_queue(processor->waiting_queue,processor->executing_process);
@@ -73,6 +74,15 @@ bool is_process_finished(Processor* processor){
 }
 bool is_preemptive(Processor* processor){
     return processor->scheduling_policy<0;
+}
+bool is_time_expired(Processor* processor){
+    if(processor->scheduling_policy!=RR)    
+        return false;
+    else 
+        return processor->timer>=processor->time_quantum;
+}
+void reset_timer(Processor* processor){
+    processor->timer=0;
 }
 //dispatch choose next process from ready queue
 //if processor is idle, just dispatch
@@ -117,6 +127,11 @@ void dispatch_process(Processor* processor){
         if(next_process==NULL) next_process=processor->executing_process;
         else stop_process(processor);
     }
+    else if(is_time_expired(processor)){
+        stop_process(processor);
+        reset_timer(processor);
+        next_process=dispatch(processor);
+    }
     else next_process=processor->executing_process;
     processor->executing_process=next_process;
 }
@@ -160,5 +175,5 @@ PCB* dispatch_PRIORITY(Processor* processor){
     else return dequeue_queue(processor->ready_queue,best);
 }
 PCB* dispatch_RR(Processor* processor){
-
+    return dequeue_queue(processor->ready_queue,0);
 }
