@@ -35,18 +35,24 @@ int load_process_list(PCB process_list[],const char* filename){
             fscanf(fp,"%d,%d,%d\n",&temp[0],&temp[1],&temp[2]);
             PCB temp_pcb={
                 .pid=count+1,
-                .cpu_burst_time=temp[0]%(MAX_BURST_TIME+1),
-                .arrival_time=temp[1]%(MAX_ARRIVAL_TIME+1),
-                .priority=temp[2]%(MAX_PRIORITY+1),
+                .cpu_burst_time=temp[0],
+                .arrival_time=temp[1],
+                .priority=temp[2],
                 .IO_request=false,
-                .remaining_CPU_burst_time=temp[0]%(MAX_BURST_TIME+1),
+                .remaining_CPU_burst_time=temp[0],
                 .remaining_IO_burst_time=0,
                 .waiting_time=0
             };
-            if(temp_pcb.cpu_burst_time==0){
-                temp_pcb.cpu_burst_time++;
-                temp_pcb.remaining_CPU_burst_time++;
+            if(temp_pcb.cpu_burst_time>MAX_BURST_TIME) {
+                temp_pcb.cpu_burst_time=MAX_BURST_TIME;
+                temp_pcb.remaining_CPU_burst_time=MAX_BURST_TIME;
             }
+            else if(temp_pcb.cpu_burst_time<1) {
+                temp_pcb.cpu_burst_time=1;
+                temp_pcb.remaining_CPU_burst_time=1;
+            }
+            if(temp_pcb.arrival_time>MAX_ARRIVAL_TIME) temp_pcb.arrival_time=MAX_ARRIVAL_TIME;
+            else if(temp_pcb.arrival_time<0) temp_pcb.arrival_time=0;
             process_list[count]=temp_pcb;
             count++;
         }
@@ -59,7 +65,7 @@ void print_pcb(PCB pcb){
     //for debugging
     //printf("io_request: %5s, ",pcb.IO_request?"true":"false");
     //
-    printf("pid: %03d, burst: %03d, arrival: %03d, priority: %d, remain_cpu: %d, remain_io: %d, waiting_time: %d\n",pcb.pid,
+    printf("pid: %03d, burst: %2d, arrival: %2d, priority: %d, remain_cpu: %2d, remain_io: %d, waiting_time: %03d\n",pcb.pid,
         pcb.cpu_burst_time,pcb.arrival_time,pcb.priority,pcb.remaining_CPU_burst_time,pcb.remaining_IO_burst_time,pcb.waiting_time);    
 }
 bool is_all_process_finished(PCB process_list[],int number_of_process){

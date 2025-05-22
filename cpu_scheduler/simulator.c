@@ -50,7 +50,7 @@ Simulation* initialize_simulation(PCB process_list[],int number_of_process,int* 
 void simulate(PCB process_array[], int number_of_process, int* log[], algorithm policy,int time_quantum){
     if(number_of_process==0) return;
     Simulation* simul=initialize_simulation(process_array,number_of_process,log,policy);
-    if(simul->CPU->scheduling_policy==RR) simul->CPU->time_quantum=time_quantum;
+    if(simul->CPU->scheduling_policy>=RR) simul->CPU->time_quantum=time_quantum;
     while(!is_all_process_finished(process_array,number_of_process))
         update_simulation(simul);
     simul->cpu_log[simul->current_time]=-1;
@@ -148,7 +148,7 @@ void execute_process(Simulation* simul){
 void update_waiting_time(Simulation* simul){
     Queue* ready_queue=simul->CPU->ready_queue;
     for(int i=0;i<ready_queue->number_of_element;++i){
-        ready_queue->head[ready_queue->out+i]->waiting_time++;
+        ready_queue->head[(ready_queue->out+i)%QUEUE_SIZE]->waiting_time++;
     }
 }
 void update_process(Simulation* simul){

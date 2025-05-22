@@ -76,7 +76,7 @@ bool is_preemptive(Processor* processor){
     return processor->scheduling_policy<0;
 }
 bool is_time_expired(Processor* processor){
-    if(processor->scheduling_policy!=RR)    
+    if(processor->scheduling_policy<RR)    
         return false;
     else 
         return processor->timer>=processor->time_quantum;
@@ -111,6 +111,10 @@ void dispatch_process(Processor* processor){
         dispatch=dispatch_RR;
         break;
 
+        case LOTTERY:
+        dispatch=dispatch_LOTTERY;
+        break;
+
         default:
         break;
     }
@@ -127,6 +131,7 @@ void dispatch_process(Processor* processor){
         if(next_process==NULL) next_process=processor->executing_process;
         else stop_process(processor);
     }
+    //for RR or LOTTERY
     else if(is_time_expired(processor)){
         stop_process(processor);
         reset_timer(processor);
@@ -176,4 +181,28 @@ PCB* dispatch_PRIORITY(Processor* processor){
 }
 PCB* dispatch_RR(Processor* processor){
     return dequeue_queue(processor->ready_queue,0);
+}
+//Lottery scheduling algorithm 근데 aging을 곁들인...
+PCB* dispatch_LOTTERY(Processor* processor){
+    if(is_empty_queue(processor->ready_queue)) return NULL;
+    int N=processor->ready_queue->number_of_element;
+    int winner=0;
+    int total_tickets=0;
+    int tickets[MAX_PROCESS_NUMBER]={0,};
+    //give lottery tickets by waiting time
+    //1 ticket for waiting time=0, n+1 tickets for waiting time=n
+    //thus longer waiting time, the more likely to win the lottery!
+    for(int i=0;i<N;i++){
+        tickets[i]=1+(processor->ready_queue->head)[(processor->ready_queue->out+i)%QUEUE_SIZE]->waiting_time;
+        total_tickets+=tickets[i];
+    }
+    winner=rand()%total_tickets;
+    for(int i=0;i<N;++i){
+        winner-=tickets[i];
+        if(winner<0) {
+            winner=i;
+            break;
+        }
+    }
+    return dequeue_queue(processor->ready_queue,winner);
 }

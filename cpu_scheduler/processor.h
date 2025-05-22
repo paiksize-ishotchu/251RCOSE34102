@@ -11,8 +11,10 @@ typedef enum{
 
     FCFS,
     SJF,
-    RR,
-    PRIORITY
+    PRIORITY,
+    //10 or higher for timer related algorithm
+    RR=10,
+    LOTTERY
 }algorithm;
 typedef enum{
     CPU,
@@ -43,4 +45,5 @@ PCB* dispatch_FCFS(Processor* processor);
 PCB* dispatch_SJF(Processor* processor);
 PCB* dispatch_PRIORITY(Processor* processor);
 PCB* dispatch_RR(Processor* processor);
+PCB* dispatch_LOTTERY(Processor* processor);
 #endif

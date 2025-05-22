@@ -100,10 +100,17 @@ void test(PCB process_array[],int number_of_process, int* log[]){
         else printf("try again\n");
     }
     else if(strcmp(buf,"RR")==0||strcmp(buf,"rr")==0){
-        int time_quantum=2;
+        int time_quantum;
         printf("time quantum? :");
         scanf("%d",&time_quantum);
         if(time_quantum>0) simulate(process_array,number_of_process,log,RR,time_quantum);
+        else printf("try again\n");
+    }
+    else if(strcmp(buf,"LOTTERY")==0||strcmp(buf,"lottery")==0){
+        int time_quantum;
+        printf("lottery interval? :");
+        scanf("%d",&time_quantum);
+        if(time_quantum>0) simulate(process_array,number_of_process,log,LOTTERY,time_quantum);
         else printf("try again\n");
     }
     else printf("I don't know that algorithm...\n");

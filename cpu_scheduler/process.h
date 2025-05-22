@@ -4,10 +4,10 @@
 #include <time.h>
 #ifndef _PROCESS_HEATHER
 #define _PROCESS_HEATHER
-#define MAX_BURST_TIME 20
+#define MAX_BURST_TIME 30
 #define MAX_ARRIVAL_TIME 50
 #define MAX_PRIORITY 7
-#define MAX_PROCESS_NUMBER 100
+#define MAX_PROCESS_NUMBER 50
 typedef struct {
     unsigned int pid;
     unsigned int cpu_burst_time;
