@@ -58,7 +58,10 @@ int make(int number_of_process){
     char filename[100];
     printf("filename ('d' for default):");
     scanf("%s",filename);
-    if(strcmp(filename,"d")==0) strcpy(filename,FILENAME_DEFAULT);
+    if(strcmp(filename,"d")==0){
+        strcpy(filename,FILENAME_DEFAULT);
+        number_of_process=10;
+    }
     else{
         printf("how many processes? : ");
         scanf("%d",&number_of_process);

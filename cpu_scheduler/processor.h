@@ -2,7 +2,6 @@
 #include "process.h"
 #ifndef _PROCESSOR_HEATHER
 #define _PROCESSOR_HEATHER
-#define IO_REQUEST_PROBABILITY 10
 #define MAX_IO_REQUEST_TIME 10
 typedef enum{
     //negative number for preemptive algorithm

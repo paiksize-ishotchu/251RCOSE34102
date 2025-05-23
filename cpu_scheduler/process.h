@@ -15,6 +15,7 @@ typedef struct {
     unsigned int remaining_CPU_burst_time;
     unsigned int remaining_IO_burst_time;
     unsigned int waiting_time;
+    unsigned int IO_probability;
     int priority; //smaller the number, higher the priority
     bool IO_request;
 }PCB;

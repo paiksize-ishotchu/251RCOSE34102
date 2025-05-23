@@ -31,11 +31,11 @@ bool is_idle(Processor* processor){
 int set_io_request_random(Processor* processor){
     if(is_idle(processor)) return 0;
     else if(is_process_finished(processor)) return 0;
-    int temp1=rand()%100+1;
-    int temp2=rand()%MAX_IO_REQUEST_TIME+1;
-    if(temp1<IO_REQUEST_PROBABILITY) {
+    int randint_0_to_99=rand()%100;
+    int random_IO_request_time=rand()%MAX_IO_REQUEST_TIME+1;
+    if(randint_0_to_99<processor->executing_process->IO_probability) {
         processor->executing_process->IO_request=true;
-        processor->executing_process->remaining_IO_burst_time=temp2;
+        processor->executing_process->remaining_IO_burst_time=random_IO_request_time;
     }
     else{
         processor->executing_process->IO_request=false;
