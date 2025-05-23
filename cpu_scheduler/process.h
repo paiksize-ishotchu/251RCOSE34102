@@ -8,6 +8,7 @@
 #define MAX_ARRIVAL_TIME 50
 #define MAX_PRIORITY 7
 #define MAX_PROCESS_NUMBER 50
+#define MAX_IO_PROBABILITY 30
 typedef struct {
     unsigned int pid;
     unsigned int cpu_burst_time;

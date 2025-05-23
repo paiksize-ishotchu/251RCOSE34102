@@ -16,7 +16,7 @@ int make_process_list(int number_of_process, const char* filename){
         FILE *fp=fopen(filename,"w");
         for(int i=0;i<number_of_process&&i<MAX_PROCESS_NUMBER;++i){
             //csv file: busrt_time, arrival_time, priority, io_probability
-            fprintf(fp,"%d,%d,%d,%d\n",rand()%MAX_BURST_TIME+1,rand()%MAX_ARRIVAL_TIME+1,rand()%MAX_PRIORITY,rand()%101);
+            fprintf(fp,"%d,%d,%d,%d\n",rand()%MAX_BURST_TIME+1,rand()%MAX_ARRIVAL_TIME+1,rand()%MAX_PRIORITY,rand()%MAX_IO_PROBABILITY);
         }
         fclose(fp);
         return 0;
