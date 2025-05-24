@@ -44,6 +44,7 @@ int set_io_request_random(Processor* processor){
     return processor->executing_process->pid;
 }
 int stop_process(Processor* processor){
+    reset_timer(processor);
     if(is_idle(processor)) return -1;
     else if(processor->type==CPU){
         if(is_process_finished(processor)) 
@@ -118,8 +119,10 @@ void dispatch_process(Processor* processor){
         default:
         break;
     }
-    if(is_idle(processor))
+    if(is_idle(processor)){
+        stop_process(processor);
         next_process=dispatch(processor);
+    }
     else if(is_process_finished(processor)){        
         stop_process(processor);
         next_process=dispatch(processor);
@@ -134,7 +137,6 @@ void dispatch_process(Processor* processor){
     //for RR or LOTTERY
     else if(is_time_expired(processor)){
         stop_process(processor);
-        reset_timer(processor);
         next_process=dispatch(processor);
     }
     else next_process=processor->executing_process;
